@@ -4,6 +4,7 @@ use std::io::{Read, Write};
 enum Operation {
     New,
     Show,
+    Reset,
 }
 
 fn main() {
@@ -13,19 +14,31 @@ fn main() {
                 Operation::New
             } else if operation == "show" {
                 Operation::Show
+            } else if operation == "reset" {
+                Operation::Reset
             } else {
                 panic!("Unknown operation: {}", operation);
             }
         }
         None => {
-            eprintln!("Usage: {} <operation>", std::env::args().nth(0).unwrap());
+            eprintln!(
+                "Usage: {} new <message> (appends the note file with a new note)",
+                std::env::args().nth(0).unwrap()
+            );
+            eprintln!(
+                "Usage: {} show (shows the notes file)",
+                std::env::args().nth(0).unwrap()
+            );
+            eprintln!(
+                "Usage: {} reset (deletes the notes file)",
+                std::env::args().nth(0).unwrap()
+            );
             std::process::exit(1);
         }
     };
 
     match operation {
         Operation::New => {
-            // create a file named notes if it doesn't exist
             match std::fs::OpenOptions::new()
                 .append(true)
                 .create(true)
@@ -38,6 +51,7 @@ fn main() {
                     note.push_str(&remaining_args.join(" "));
                     note.push_str("\n");
                     file.write_all(note.as_bytes()).unwrap();
+                    println!("Note added");
                 }
 
                 Err(error) => {
@@ -53,6 +67,15 @@ fn main() {
                 println!("{}", contents);
             }
 
+            Err(error) => {
+                eprintln!("Error: {}", error);
+                std::process::exit(1);
+            }
+        },
+        Operation::Reset => match std::fs::remove_file("notes.txt") {
+            Ok(_) => {
+                println!("Notes reset");
+            }
             Err(error) => {
                 eprintln!("Error: {}", error);
                 std::process::exit(1);
