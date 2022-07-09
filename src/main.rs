@@ -46,7 +46,7 @@ fn main() {
             {
                 Ok(mut file) => {
                     let mut note = chrono::Local::now().to_rfc2822().to_string();
-                    note.push_str(" :: ");
+                    note.push_str(" => ");
                     let remaining_args = std::env::args().skip(2).collect::<Vec<_>>();
                     note.push_str(&remaining_args.join(" "));
                     note.push_str("\n");
